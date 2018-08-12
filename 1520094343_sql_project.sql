@@ -109,7 +109,29 @@ HAVING total_cost > 30
 ORDER BY total_cost DESC
 
 /* Q9: This time, produce the same result as in Q8, but using a subquery. */
+SELECT DISTINCT CONCAT(mem.surname, ', ', mem.firstname) AS full_name, fac.name, SUM(book.slots * fac.membercost) AS total_cost
+FROM (
+      SELECT *
+      FROM `Members`
+      WHERE memid > 0
+     ) mem
+JOIN `Bookings` book ON mem.memid = book.memid
+JOIN `Facilities` fac ON book.facid = fac.facid AND DATE(book.starttime) = '2012-09-04'
+GROUP BY full_name
+HAVING total_cost > 30
 
+UNION
+
+SELECT DISTINCT CONCAT(mem.surname, ', ', mem.firstname) AS full_name, fac.name, (book.slots * fac.guestcost) AS total_cost
+FROM (
+      SELECT *
+      FROM `Members`
+      WHERE memid = 0
+     ) mem
+JOIN `Bookings` book ON mem.memid = book.memid
+JOIN `Facilities` fac ON book.facid = fac.facid AND DATE(book.starttime) = '2012-09-04'
+HAVING total_cost > 30
+ORDER BY total_cost DESC
 
 /* Q10: Produce a list of facilities with a total revenue less than 1000.
 The output of facility name and total revenue, sorted by revenue. Remember
