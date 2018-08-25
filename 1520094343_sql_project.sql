@@ -41,16 +41,16 @@ Return the facid, facility name, member cost, and monthly maintenance of the
 facilities in question. */
 SELECT facid, name, membercost, monthlymaintenance
 FROM `Facilities`
-WHERE membercost < monthlymaintenance * 0.2
+WHERE membercost < monthlymaintenance * 0.2 and membercost > 0
 
 /* Q4: How can you retrieve the details of facilities with ID 1 and 5?
 Write the query without using the OR operator. */
 SELECT book.bookid,
        facility.*
-FROM `Bookings` book
-LEFT JOIN `Facilities` facility
+FROM `Facilities` facility
+LEFT JOIN `Bookings` book
 ON book.facid = facility.facid
-WHERE book.bookid IN (1,5)
+WHERE facility.facid IN (1,5)
 
 /* Q5: How can you produce a list of facilities, with each labelled as
 'cheap' or 'expensive', depending on if their monthly maintenance cost is
@@ -139,6 +139,8 @@ that there's a different cost for guests and members! */
 SELECT fac.name, (SUM(book.slots * fac.membercost) - 0) AS revenue
 FROM `Bookings` book
 JOIN `Facilities` fac ON book.facid = fac.facid AND book.memid > 0
+GROUP BY fac.name
+HAVING revenue < 1000
 
 UNION
 
@@ -146,7 +148,7 @@ SELECT fac.name, (SUM(book.slots * fac.guestcost) - fac.monthlymaintenance) AS r
 FROM `Bookings` book
 JOIN `Facilities` fac ON book.facid = fac.facid AND book.memid = 0
 GROUP BY fac.name
-HAVING revenue > 1000
+HAVING revenue < 1000
 
 --------------------------------------------------------------------------------------
 -- count ubique id
